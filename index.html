@@ -161,7 +161,6 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 32px 24px;
-    overflow: hidden;
   }
   .arch-svg { width: 100%; height: auto; display: block; }
   .arch-node-rect {
@@ -540,22 +539,29 @@
     display: flex;
     flex-direction: column;
     transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    padding: 0;
   }
   .feature:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
   }
+  .feature:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
   .feature-shot {
     width: 100%;
-    height: 200px;
-    overflow: hidden;
     background: var(--bg);
   }
   .feature-shot img {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
+    height: auto;
   }
   .feature-body { padding: 18px 20px; flex: 1; }
   .feature-name {
@@ -1247,22 +1253,24 @@
     const grid = $('features-grid');
     grid.innerHTML = '';
     FEATURES.forEach((f) => {
-      const el = document.createElement('div');
+      const el = document.createElement('button');
+      el.type = 'button';
       el.className = 'feature';
+      el.dataset.featureJump = String(f.anchor);
+      el.setAttribute('aria-label', `${f.name} — jump to ${f.built} in the timeline`);
       el.innerHTML = `
         <div class="feature-shot"><img src="assets/${f.shot}" alt="${f.name} screen" loading="lazy" /></div>
         <div class="feature-body">
           <h4 class="feature-name">${f.name}</h4>
           <p class="feature-desc">${f.desc}</p>
-          <p class="feature-meta">Built in <a href="#session-${f.anchor}" data-feature-jump="${f.anchor}">${f.built}</a></p>
+          <p class="feature-meta">Built in ${f.built} →</p>
         </div>
       `;
       grid.appendChild(el);
     });
-    grid.querySelectorAll('[data-feature-jump]').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = Number(link.dataset.featureJump);
+    grid.querySelectorAll('[data-feature-jump]').forEach((card) => {
+      card.addEventListener('click', () => {
+        const id = Number(card.dataset.featureJump);
         setView('timeline');
         state.expanded.add(id);
         renderTimeline();
@@ -1361,13 +1369,16 @@
     function positionTooltip(e, node) {
       const wrapRect = wrap.getBoundingClientRect();
       const rect = node.getBoundingClientRect();
-      // Position relative to wrap, slightly below the node, clamped to the wrap
       let x = (rect.left + rect.width / 2) - wrapRect.left;
       let y = (rect.bottom - wrapRect.top) + 10;
-      // Render once to measure
       tip.style.left = '0px';
       tip.style.top = y + 'px';
       const tipRect = tip.getBoundingClientRect();
+      // Flip above the node when the default below-position would overflow the wrap
+      if (y + tipRect.height > wrapRect.height - 8) {
+        y = (rect.top - wrapRect.top) - tipRect.height - 10;
+        tip.style.top = y + 'px';
+      }
       const maxX = wrapRect.width - tipRect.width - 12;
       x = Math.max(12, Math.min(maxX, x - tipRect.width / 2));
       tip.style.left = x + 'px';
