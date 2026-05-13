@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spun — Building in Public</title>
+<meta name="description" content="Spun is a music diary. Built solo with Claude Code, in public. The live timeline of what's shipped." />
+<meta property="og:title" content="Spun — Building in Public" />
+<meta property="og:description" content="A music diary built solo with Claude Code, in public." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#0F0E0D" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0F0E0D;
+    --surface: #1A1816;
+    --surface-elev: #242220;
+    --border: rgba(255, 248, 240, 0.08);
+    --border-elev: rgba(255, 248, 240, 0.10);
+    --fg: #F5F0EA;
+    --fg-muted: #9C9490;
+    --fg-subtle: #615C59;
+    --accent: #C9A96E;
+    --accent-muted: rgba(201, 169, 110, 0.15);
+    --destructive: #E05252;
+    --success: #6BAF8D;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --maxw: 1100px;
+    --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.45);
+    --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: inherit;
+  }
+  img { display: block; max-width: 100%; }
+  ::selection { background: var(--accent-muted); color: var(--fg); }
+
+  .calistoga { font-family: 'Calistoga', serif; font-weight: 400; letter-spacing: -0.3px; }
+  .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ---------------- HERO ---------------- */
+  .hero {
+    padding: 80px 24px 48px;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .hero-text h1 {
+    font-family: 'Calistoga', serif;
+    font-weight: 400;
+    font-size: 56px;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin: 0 0 16px;
+    color: var(--fg);
+  }
+  .hero-text h1 .accent { color: var(--accent); }
+  .hero-subtitle {
+    font-size: 18px;
+    color: var(--fg-muted);
+    margin: 0 0 28px;
+    font-weight: 500;
+  }
+  .hero-about {
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--fg);
+    margin: 0;
+    max-width: 540px;
+  }
+  .hero-about em { color: var(--fg-muted); font-style: normal; }
+  .hero-image {
+    position: relative;
+    justify-self: end;
+  }
+  .hero-image img {
+    width: 100%;
+    max-width: 360px;
+    border-radius: 22px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* ---------------- STATS ---------------- */
+  .stats {
+    max-width: var(--maxw);
+    margin: 24px auto 64px;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: left;
+  }
+  .stat .num {
+    font-family: 'Calistoga', serif;
+    font-size: 40px;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .stat .num .denom { color: var(--fg-muted); font-size: 28px; }
+  .stat .label {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--fg-muted);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ---------------- ARCHITECTURE SVG ---------------- */
+  .arch-section {
+    max-width: var(--maxw);
+    margin: 0 auto 80px;
+    padding: 0 24px;
+  }
+  .arch-section h2 {
+    font-family: 'Calistoga', serif;
+    font-size: 30px;
+    margin: 0 0 8px;
+    color: var(--fg);
+  }
+  .arch-section .arch-sub {
+    color: var(--fg-muted);
+    font-size: 15px;
+    margin: 0 0 24px;
+  }
+  .arch-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    overflow: hidden;
+  }
+  .arch-svg { width: 100%; height: auto; display: block; }
+  .arch-node-rect {
+    fill: var(--surface-elev);
+    stroke: var(--border-elev);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: stroke 0.18s, fill 0.18s;
+  }
+  .arch-node:hover .arch-node-rect,
+  .arch-node:focus .arch-node-rect {
+    stroke: var(--accent);
+    fill: #2a2622;
+  }
+  .arch-label {
+    fill: var(--fg);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .arch-sub-label {
+    fill: var(--fg-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    pointer-events: none;
+  }
+  .arch-edge {
+    stroke: var(--fg-subtle);
+    stroke-width: 1.2;
+    fill: none;
+    marker-end: url(#arrow);
+  }
+  .arch-tooltip {
+    position: absolute;
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--fg);
+    line-height: 1.5;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 20;
+    box-shadow: var(--shadow-card);
+  }
+  .arch-tooltip.visible { opacity: 1; }
+  .arch-tooltip .tip-title {
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  /* ---------------- STICKY BAR ---------------- */
+  .sticky-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(15, 14, 13, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+  }
+  .sticky-inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .phase-indicator {
+    font-size: 13px;
+    color: var(--fg-muted);
+    font-weight: 500;
+    min-width: 110px;
+  }
+  .phase-indicator strong { color: var(--accent); font-weight: 600; }
+  .view-toggle {
+    display: inline-flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .view-toggle button {
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--fg-muted);
+    border-radius: 7px;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+  }
+  .view-toggle button.active {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .chip {
+    padding: 5px 11px;
+    font-size: 12px;
+    color: var(--fg-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    transition: all 0.15s;
+  }
+  .chip:hover { color: var(--fg); border-color: var(--border-elev); }
+  .chip.active {
+    background: var(--accent-muted);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .search-box {
+    position: relative;
+    margin-left: auto;
+  }
+  .search-box input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px 7px 32px;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 13px;
+    width: 180px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box svg {
+    position: absolute;
+    left: 10px; top: 50%; transform: translateY(-50%);
+    color: var(--fg-subtle);
+  }
+  .expand-controls {
+    display: flex; gap: 6px;
+  }
+  .expand-controls button {
+    font-size: 12px;
+    color: var(--fg-muted);
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: color 0.15s;
+  }
+  .expand-controls button:hover { color: var(--fg); }
+
+  /* ---------------- MAIN VIEW ---------------- */
+  .main-view {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ---------------- TIMELINE VIEW ---------------- */
+  .timeline-list { list-style: none; padding: 0; margin: 0; }
+  .milestone {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .milestone:hover { border-color: var(--border-elev); }
+  .milestone[data-hidden="true"] { display: none; }
+  .milestone-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  .milestone-num {
+    font-family: 'Calistoga', serif;
+    font-size: 24px;
+    color: var(--accent);
+    min-width: 36px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .milestone-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--accent-muted);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+  }
+  .pill.muted { background: var(--surface-elev); color: var(--fg-muted); }
+  .milestone-date { font-size: 13px; color: var(--fg-muted); }
+  .milestone-head-text { flex: 1; }
+  .milestone-headline {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--fg);
+    margin: 0;
+  }
+  .milestone-summary {
+    font-size: 14px;
+    color: var(--fg-muted);
+    margin: 6px 0 0;
+    line-height: 1.5;
+  }
+  .chev {
+    color: var(--fg-subtle);
+    transition: transform 0.2s, color 0.2s;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .milestone[data-expanded="true"] .chev {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
+  .milestone-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 24px;
+  }
+  .milestone[data-expanded="true"] .milestone-body { display: block; }
+  .milestone-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .milestone-content.has-shot {
+    grid-template-columns: 1fr 320px;
+  }
+  .detail-block { margin-bottom: 18px; }
+  .detail-block:last-child { margin-bottom: 0; }
+  .detail-block h4 {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+  .detail-block p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .linkedin-quote {
+    background: var(--bg);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    margin: 18px 0 0;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--fg-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .milestone-screenshot img {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+  }
+  .screenshot-caption {
+    margin-top: 12px;
+    font-size: 12.5px;
+    font-style: italic;
+    color: var(--fg-muted);
+    line-height: 1.55;
+    padding: 0 4px;
+  }
+
+  /* ---------------- BY PHASE VIEW ---------------- */
+  .phase-group { margin-bottom: 48px; }
+  .phase-group-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-group-header h3 {
+    font-family: 'Calistoga', serif;
+    font-size: 28px;
+    margin: 0;
+    color: var(--fg);
+  }
+  .phase-group-header .count {
+    font-size: 13px;
+    color: var(--fg-muted);
+  }
+  .phase-group-header.in-progress h3 { color: var(--accent); }
+  .phase-group.in-progress-msg {
+    padding: 20px;
+    color: var(--fg-muted);
+    background: var(--surface);
+    border: 1px dashed var(--border-elev);
+    border-radius: var(--radius);
+    font-size: 14px;
+  }
+
+  /* ---------------- DECISIONS VIEW ---------------- */
+  .decisions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .decision {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    transition: border-color 0.2s;
+  }
+  .decision:hover { border-color: var(--border-elev); }
+  .decision-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .decision-num {
+    font-family: 'Calistoga', serif;
+    font-size: 18px;
+    color: var(--accent);
+  }
+  .decision-date {
+    font-size: 12px;
+    color: var(--fg-muted);
+    margin-left: auto;
+  }
+  .decision-title {
+    font-weight: 600;
+    color: var(--fg);
+    font-size: 15px;
+    margin: 0 0 6px;
+  }
+  .decision-why {
+    font-size: 13.5px;
+    color: var(--fg-muted);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ---------------- FEATURES VIEW ---------------- */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .feature {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .feature:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .feature-shot {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .feature-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+  .feature-body { padding: 18px 20px; flex: 1; }
+  .feature-name {
+    font-family: 'Calistoga', serif;
+    font-size: 20px;
+    color: var(--accent);
+    margin: 0 0 6px;
+  }
+  .feature-desc {
+    font-size: 13.5px;
+    color: var(--fg-muted);
+    line-height: 1.55;
+    margin: 0 0 12px;
+  }
+  .feature-meta {
+    font-size: 11.5px;
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+  }
+  .feature-meta a { color: var(--fg-muted); }
+  .feature-meta a:hover { color: var(--accent); }
+
+  /* ---------------- EMPTY STATE ---------------- */
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+
+  /* ---------------- FOOTER ---------------- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  footer .foot-row {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  footer .credit { color: var(--fg-subtle); font-size: 13px; }
+
+  /* ---------------- RESPONSIVE ---------------- */
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 32px;
+      padding-top: 56px;
+    }
+    .hero-text h1 { font-size: 44px; }
+    .hero-image { justify-self: center; }
+    .hero-image img { max-width: 300px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .milestone-content.has-shot { grid-template-columns: 1fr; }
+    .milestone-screenshot { max-width: 360px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .sticky-inner { gap: 12px; }
+    .search-box input { width: 140px; }
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 40px 20px 32px; }
+    .hero-text h1 { font-size: 36px; }
+    .hero-subtitle { font-size: 16px; }
+    .hero-about { font-size: 15px; }
+    .stats { padding: 0 20px; }
+    .stat { padding: 18px; }
+    .stat .num { font-size: 32px; }
+    .arch-section, .main-view { padding-left: 20px; padding-right: 20px; }
+    .sticky-inner { padding: 0 20px; }
+    .phase-indicator { display: none; }
+    .search-box input { width: 100%; }
+    .search-box { margin-left: 0; flex: 1 1 100%; order: 99; }
+    .view-toggle { flex-wrap: wrap; }
+    .view-toggle button { padding: 6px 10px; font-size: 12px; }
+    .milestone-head { padding: 16px 18px; gap: 12px; }
+    .milestone-num { font-size: 20px; min-width: 30px; }
+    .milestone-headline { font-size: 16px; }
+    .milestone-body { padding: 20px 18px; }
+    .arch-wrap { padding: 20px 12px; }
+  }
+  @media (max-width: 400px) {
+    .hero-text h1 { font-size: 32px; }
+    .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { padding: 14px; }
+    .stat .num { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero-text">
+    <h1>Spun —<br/><span class="accent">Building in Public</span></h1>
+    <p class="hero-subtitle" id="hero-subtitle">21 days. 5 phases. 1 PM. No engineers.</p>
+    <p class="hero-about">
+      <em>Spun is a music diary — your private record of every album you listen to, what you rated it, and what you thought. The social layer is optional, on top. Built solo with Claude Code, in public. This page is the live timeline of what's shipped.</em>
+    </p>
+  </div>
+  <div class="hero-image">
+    <img src="assets/08-profile-diary-grid.png" alt="Spun profile screen with diary grid of album artwork" loading="eager" />
+  </div>
+</header>
+
+<!-- ============ STATS ============ -->
+<section class="stats">
+  <div class="stat">
+    <div class="num"><span id="stat-days">21</span></div>
+    <div class="label">Days building</div>
+  </div>
+  <div class="stat">
+    <div class="num">15</div>
+    <div class="label">Sessions shipped</div>
+  </div>
+  <div class="stat">
+    <div class="num" id="stat-decisions">27</div>
+    <div class="label">Decisions locked</div>
+  </div>
+  <div class="stat">
+    <div class="num">4<span class="denom"> / 5</span></div>
+    <div class="label">Phases done</div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE DIAGRAM ============ -->
+<section class="arch-section">
+  <h2>The system at a glance</h2>
+  <p class="arch-sub">Hover any block to see its role and the patterns that live there.</p>
+  <div class="arch-wrap" id="arch-wrap">
+    <svg class="arch-svg" viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Spun system architecture diagram">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#615C59" />
+        </marker>
+      </defs>
+
+      <!-- Spotify API -->
+      <g class="arch-node" data-tip="spotify" tabindex="0" role="button" aria-label="Spotify API node">
+        <rect class="arch-node-rect" x="40" y="40" width="180" height="70" rx="12" />
+        <text class="arch-label" x="130" y="72" text-anchor="middle">Spotify API</text>
+        <text class="arch-sub-label" x="130" y="92" text-anchor="middle">Catalog source</text>
+      </g>
+
+      <!-- Edge Functions -->
+      <g class="arch-node" data-tip="catalog-search" tabindex="0" role="button" aria-label="catalog-search edge function">
+        <rect class="arch-node-rect" x="280" y="20" width="200" height="60" rx="12" />
+        <text class="arch-label" x="380" y="48" text-anchor="middle">catalog-search</text>
+        <text class="arch-sub-label" x="380" y="66" text-anchor="middle">Edge Function</text>
+      </g>
+      <g class="arch-node" data-tip="fetch-tracklist" tabindex="0" role="button" aria-label="fetch-tracklist edge function">
+        <rect class="arch-node-rect" x="280" y="90" width="200" height="60" rx="12" />
+        <text class="arch-label" x="380" y="118" text-anchor="middle">fetch-tracklist</text>
+        <text class="arch-sub-label" x="380" y="136" text-anchor="middle">Edge Function</text>
+      </g>
+
+      <!-- Supabase Postgres -->
+      <g class="arch-node" data-tip="postgres" tabindex="0" role="button" aria-label="Supabase Postgres">
+        <rect class="arch-node-rect" x="540" y="40" width="220" height="90" rx="12" />
+        <text class="arch-label" x="650" y="68" text-anchor="middle">Supabase Postgres</text>
+        <text class="arch-sub-label" x="650" y="88" text-anchor="middle">RLS · Triggers · RPCs</text>
+        <text class="arch-sub-label" x="650" y="108" text-anchor="middle">UNIQUE constraints</text>
+      </g>
+
+      <!-- Client tier -->
+      <g class="arch-node" data-tip="tanstack" tabindex="0" role="button" aria-label="TanStack Query layer">
+        <rect class="arch-node-rect" x="540" y="180" width="220" height="60" rx="12" />
+        <text class="arch-label" x="650" y="208" text-anchor="middle">TanStack Query</text>
+        <text class="arch-sub-label" x="650" y="226" text-anchor="middle">Cross-cache scan + patch</text>
+      </g>
+      <g class="arch-node" data-tip="zustand" tabindex="0" role="button" aria-label="Zustand client state">
+        <rect class="arch-node-rect" x="280" y="180" width="200" height="60" rx="12" />
+        <text class="arch-label" x="380" y="208" text-anchor="middle">Zustand</text>
+        <text class="arch-sub-label" x="380" y="226" text-anchor="middle">UI + draft state</text>
+      </g>
+      <g class="arch-node" data-tip="reanimated" tabindex="0" role="button" aria-label="Reanimated animations">
+        <rect class="arch-node-rect" x="40" y="180" width="200" height="60" rx="12" />
+        <text class="arch-label" x="140" y="208" text-anchor="middle">Reanimated</text>
+        <text class="arch-sub-label" x="140" y="226" text-anchor="middle">UI-thread animations</text>
+      </g>
+
+      <!-- iOS device -->
+      <g class="arch-node" data-tip="ios" tabindex="0" role="button" aria-label="iOS device">
+        <rect class="arch-node-rect" x="370" y="280" width="260" height="60" rx="12" />
+        <text class="arch-label" x="500" y="308" text-anchor="middle">Expo / React Native — iOS</text>
+        <text class="arch-sub-label" x="500" y="326" text-anchor="middle">TestFlight + EAS builds</text>
+      </g>
+
+      <!-- Edges -->
+      <path class="arch-edge" d="M220,68 C250,68 250,50 280,50" />
+      <path class="arch-edge" d="M220,82 C250,82 250,120 280,120" />
+      <path class="arch-edge" d="M480,50 C510,50 510,75 540,75" />
+      <path class="arch-edge" d="M480,120 C510,120 510,95 540,95" />
+      <path class="arch-edge" d="M650,130 L650,180" />
+      <path class="arch-edge" d="M650,240 C650,260 580,260 500,280" />
+      <path class="arch-edge" d="M380,240 C380,260 420,260 470,280" />
+      <path class="arch-edge" d="M140,240 C140,270 280,290 370,308" />
+    </svg>
+    <div class="arch-tooltip" id="arch-tooltip" role="tooltip"></div>
+  </div>
+</section>
+
+<!-- ============ STICKY BAR ============ -->
+<div class="sticky-bar" id="sticky-bar">
+  <div class="sticky-inner">
+    <div class="phase-indicator" id="phase-indicator">In view: <strong id="phase-current">Discovery</strong></div>
+    <div class="view-toggle" role="tablist" aria-label="View mode">
+      <button class="active" data-view="timeline" role="tab">Timeline</button>
+      <button data-view="phases" role="tab">By Phase</button>
+      <button data-view="decisions" role="tab">Decisions</button>
+      <button data-view="features" role="tab">Features</button>
+    </div>
+    <div class="filter-chips" id="filter-chips" role="group" aria-label="Filter milestones">
+      <button class="chip active" data-filter="all">All</button>
+      <button class="chip" data-filter="decisions">Decisions locked</button>
+      <button class="chip" data-filter="bugs">Bugs fixed</button>
+      <button class="chip" data-filter="patterns">Patterns learned</button>
+      <button class="chip" data-filter="linkedin">LinkedIn moments</button>
+    </div>
+    <div class="search-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-3.5-3.5"/></svg>
+      <input type="search" id="search-input" placeholder="Search milestones…" aria-label="Search milestones" />
+    </div>
+    <div class="expand-controls">
+      <button id="expand-all">Expand all</button>
+      <button id="collapse-all">Collapse all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN VIEW ============ -->
+<main class="main-view">
+  <section class="view active" id="view-timeline" role="tabpanel" aria-label="Timeline view">
+    <ol class="timeline-list" id="timeline-list"></ol>
+    <div class="empty-state" id="timeline-empty" hidden>No milestones match these filters.</div>
+  </section>
+
+  <section class="view" id="view-phases" role="tabpanel" aria-label="By Phase view">
+    <div id="phases-container"></div>
+  </section>
+
+  <section class="view" id="view-decisions" role="tabpanel" aria-label="Decisions view">
+    <div class="decisions-grid" id="decisions-grid"></div>
+  </section>
+
+  <section class="view" id="view-features" role="tabpanel" aria-label="Features view">
+    <div class="features-grid" id="features-grid"></div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="foot-row">
+    <a href="https://www.linkedin.com/in/abdelrahman-ashraf97/" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+      Connect on LinkedIn
+    </a>
+    <span class="credit">Built with Claude Code</span>
+  </div>
+</footer>
+
+<script>
+  // ============ DATA ============
+  const SESSIONS = [
+    {
+      id: 1, date: '2026-04-22', dateLabel: 'Apr 22',
+      phase: 'Discovery', phaseSlug: 'discovery',
+      headline: 'Concept + tech stack chosen from first principles',
+      summary: 'Letterboxd-for-music locked. Stack: React Native + Expo, Supabase, Spotify API, TanStack Query, Reanimated.',
+      shipped: 'Founding project brief, full stack decision (RN+Expo over SwiftUI, Supabase over Firebase, Spotify API for catalog).',
+      broke: '—',
+      learned: 'The first session wasn\'t about code. It was about making irreversible decisions correctly.',
+      linkedin: 'Starting a product from scratch with no engineering team — just a PM, Claude Code, and a clear problem statement. The first session wasn\'t about code. It was about making irreversible decisions correctly.',
+      tags: ['decisions'],
+    },
+    {
+      id: 2, date: '2026-04-22', dateLabel: 'Apr 22–23',
+      phase: 'Discovery', phaseSlug: 'discovery',
+      headline: 'Online research + OST synthesis',
+      summary: '40+ sources across Reddit, X, App Store reviews, ProductHunt. Opportunity Solution Tree mapped with evidence counts.',
+      shipped: 'research-online-discovery-2026-04-23.md. 5 opportunities ranked. New "Displaced Musicboard User" persona identified.',
+      broke: '—',
+      learned: 'Spreadsheet/Notes app behavior for album tracking is pre-product signal — identical to what preceded Letterboxd for film.',
+      linkedin: 'I ran a 2-week research sprint in one session — 40+ sources synthesized into a structured opportunity map with behavioral evidence scores. No research team. No budget. More rigorous than most startup decks.',
+      tags: ['decisions'],
+    },
+    {
+      id: 3, date: '2026-04-23', dateLabel: 'Apr 23–24',
+      phase: 'Discovery', phaseSlug: 'discovery',
+      headline: 'Problem statement locked (the Letterboxd gap)',
+      summary: 'Three problem statements written. Chose the demand-side framing over solution-disguised statements.',
+      shipped: 'Locked problem: music enthusiasts can\'t feel seen and understood as people with real taste. Saved + handed off mid-session to preserve context.',
+      broke: '—',
+      learned: 'A and C were solutions in disguise. B captured the root: the social/emotional job, not the functional mechanics.',
+      linkedin: 'The difference between building the wrong product and the right one often comes down to one sentence. We wrote three versions of the problem and deliberately chose the one that wasn\'t a solution in disguise.',
+      tags: ['decisions'],
+    },
+    {
+      id: 4, date: '2026-04-24', dateLabel: 'Apr 24',
+      phase: 'Discovery', phaseSlug: 'discovery',
+      headline: 'JTBD + assumption map + OST + naming → "Spun"',
+      summary: 'Demand-side analysis (Bob Moesta), 11 assumptions ranked, opportunity sized (SOM 10K), then 20+ name candidates tested before landing on Spun.',
+      shipped: 'discovery-music-app-2026-04-24.md. Direction A (Letterboxd shell) + Direction C (re-listen, NRF feed) as the build path. Name locked: Spun.',
+      broke: 'Sleeve, Liner, Groove, Audiary, Encore — all ruled out with documented reasons (existing music-space brands, taken domains, ambiguous pronunciation).',
+      learned: 'Trust is the #1 adoption blocker post-Musicboard, not feature gaps. Any GTM must lead with survival signal before feature differentiation.',
+      linkedin: 'I tested 20+ names with a systematic conflict-checking process — domain availability, live site content, music-space brand conflicts, App Store search — before picking one. Most founders pick a name in an hour. This took a session and it was worth it.',
+      tags: ['decisions'],
+    },
+    {
+      id: 5, date: '2026-04-24', dateLabel: 'Apr 24 (late)',
+      phase: 'Spec & Setup', phaseSlug: 'spec',
+      headline: 'Process Log + LinkedIn content strategy',
+      summary: 'Backfilled every prior session into process-log.md. Added Process Log Protocol to CLAUDE.md.',
+      shipped: 'process-log.md created and backfilled. Memory system consolidated. LinkedIn pipeline planned: capture now, post after launch.',
+      broke: '—',
+      learned: 'The process itself is the product for a PM building in public. Every decision has a story worth telling — but the story is better after you\'ve shipped.',
+      linkedin: 'The process itself is the product for a PM building in public. Every decision has a story worth telling — but the story is better after you\'ve shipped.',
+      tags: [],
+    },
+    {
+      id: 6, date: '2026-04-24', dateLabel: 'Apr 24',
+      phase: 'Spec & Setup', phaseSlug: 'spec',
+      headline: 'MVP PRD written — JTBD-grounded, demand-side',
+      summary: 'Full PRD via /write-prd. Every section traces back to validated discovery insight, not generic user stories.',
+      shipped: 'prd-spun-mvp-2026-04-24.md. Locked: "music diary app" framing, 3-log onboarding gate, re-listen flag, New Release Friday feed, 40% Day-7 retention as primary metric.',
+      broke: 'Ghost activity bug flagged before any code: unfollow must clear feed cache, not just stop future entries.',
+      learned: 'PRDs written from JTBD don\'t need feature-side user stories — the demand-side does the work.',
+      linkedin: 'The PRD for Spun was written with every section grounded in prior discovery work — JTBD forces, OST mapping, competitive context. No guessing. No generic user stories. Every sentence connects back to a validated insight. This is what demand-led product work looks like.',
+      tags: ['decisions'],
+    },
+    {
+      id: 7, date: '2026-04-25', dateLabel: 'Apr 25',
+      phase: 'Spec & Setup', phaseSlug: 'spec',
+      headline: 'PRD refinement + System Architecture + user journey',
+      summary: 'Added full System Architecture section, locked launch strategy shift, added App Store requirements (account delete, report/block, privacy policy).',
+      shipped: 'PRD updated. user-journey-spun-2026-04-25.md. design-brief-spun-2026-04-24.md. CLAUDE.md gained Surgical Changes + Step→Verify loop.',
+      broke: '—',
+      learned: 'The difference between a PRD and a build brief is the System Architecture section. Most PMs write the first. The build starts from the second.',
+      linkedin: 'The difference between a PRD and a build brief is the System Architecture section. Most PMs write the first. The build starts from the second.',
+      tags: ['decisions', 'patterns'],
+    },
+    {
+      id: 8, date: '2026-04-26', dateLabel: 'Apr 26',
+      phase: 'Phase 1 — Foundation', phaseSlug: 'phase1',
+      headline: 'Phase 1 — Foundation scaffold',
+      summary: 'Expo project created. Every dependency installed. Folder scaffold + theme tokens + Supabase + RLS migrations + queryClient — before any UI.',
+      shipped: 'create-expo-app, NativeWind v4, expo-router, all deps. Theme tokens (colors, typography, spacing, motion). lib/supabase.ts with SecureStore adapter. SQL migrations 001–004 (schema + RLS + indexes + triggers) delegated to subagent in parallel. TypeScript compile: 0 errors.',
+      broke: 'react@19.1.0 vs react-dom@19.2.5 peer conflict — resolved with --legacy-peer-deps (standard RN pattern).',
+      learned: 'Separation of concerns starts before the first commit. A clean scaffold, theme tokens wired, and migrations written — before touching a single UI component.',
+      linkedin: 'Phase 1 done: a clean Expo project with the full folder scaffold, every dependency installed, design tokens wired, and SQL migrations written — before touching a single UI component. Separation of concerns starts before the first commit.',
+      screenshot: '01-welcome.png',
+      screenshotAlt: 'Spun welcome screen with Continue with Apple and Continue with Email buttons',
+      tags: ['decisions', 'patterns'],
+    },
+    {
+      id: 9, date: '2026-05-02', dateLabel: 'May 2',
+      phase: 'Phase 3 — Logging', phaseSlug: 'phase3',
+      headline: 'formSheet layout bug — Fragment root + always-FlatList rule',
+      summary: 'Album search results rendering in the dimmed overlay above the sheet, not inside it. Diagnosed via iOS simulator screenshots after switching from physical-device Expo Go.',
+      shipped: 'LogSheet.tsx with Fragment root + collapsable={false} header. AlbumSearchResults always returns FlatList (never plain View). TouchableOpacity from RN for visible tap feedback.',
+      broke: 'RNScreens warning: "FormSheet with ScrollView expects at most 2 subviews. Got 6." Reduced 6 → 3 → 2 by removing KeyboardAvoidingView wrapper, intermediate View, then container View → Fragment.',
+      learned: 'RNScreens counts native views, not React components. Fragment has no native representation; container View does.',
+      linkedin: 'The layout bug that looked like a React layout problem was actually a native iOS constraint — RNScreens\' FormSheet expects exactly 2 direct subviews at the native layer, not the JS layer. The fix required understanding where React Native\'s view flattening draws the line.',
+      screenshot: '04-album-search.png',
+      screenshotAlt: 'Album search results inside the LogSheet, rendered correctly after the Fragment-root fix',
+      tags: ['bugs', 'patterns'],
+    },
+    {
+      id: 10, date: '2026-05-04', dateLabel: 'May 4',
+      phase: 'Phase 3 — Logging', phaseSlug: 'phase3',
+      headline: 'Favourite tracks UI — gesture + toast + nested ScrollView fixes',
+      summary: 'TrackPickerSection with numbered-badge multi-select. Five distinct bugs diagnosed and fixed in one session, all gesture/layout related.',
+      shipped: 'TrackPickerSection.tsx, LogSuccessToast.tsx (Reanimated, gold-on-black, 1200ms hold). favouriteTracks param in useCreateLog. Multi-select tested via Supabase MCP (Robbers → Sex → Menswear order preserved).',
+      broke: '(1) VirtualizedList inside ScrollView. (2) Nested ScrollView gesture conflict. (3) Star rating tap not registering. (4) Toast invisible below fold. (5) Toast too fast + wrong colors.',
+      learned: 'Gesture.Race(tap, pan) is the right composition for any component needing both tap and drag. Floating UI (toasts) must live outside the ScrollView in an absolute-positioned wrapper.',
+      linkedin: 'The same bug pattern — gesture systems competing silently with no error thrown — showed up three times in one session: nested ScrollViews, star rating taps, and toast positioning. Every one was diagnosed by understanding what the native layer expects, not by reading the JS code.',
+      screenshot: '06-logform-multiselect-relisten.png',
+      screenshotAlt: 'LogForm with favourite tracks multi-selected (numbered badges) and re-listen toggle',
+      tags: ['bugs', 'patterns', 'decisions'],
+    },
+    {
+      id: 11, date: '2026-05-09', dateLabel: 'May 9',
+      phase: 'Phase 4 — Social', phaseSlug: 'phase4',
+      headline: 'Phase 4 Session D — Likes + cross-cache mutation pattern',
+      summary: 'Likes shipped end-to-end. Architecture decision reversed mid-session: cross-cache invalidation out, scan-and-patch in. New pattern generalizes to every future cache.',
+      shipped: 'toggle_like RPC. notify_on_like SECURITY DEFINER trigger. liked_by_viewer on 4 RPCs (EXISTS subquery on likes_pkey). useLikeLog refactored to cache-scan with isLikeable shape guard. Verified on physical device (Expo Go).',
+      broke: 'Pre-flight DB inspection caught two architecture-doc divergences: tr_likes_count_sync already maintained the counter (RPC would have double-counted); tr_notify_review_liked used pg_net which isn\'t installed (every INSERT into likes would have rolled back). Both dropped before deploying.',
+      learned: 'Decision 6 ("no cross-feed invalidation") was correct in spirit but too broad. Cross-cache invalidation still avoided. Cross-cache in-place patching adopted as the standard. Same goal, much cheaper, generalizes.',
+      linkedin: 'The most interesting bug of the session wasn\'t a bug — it was a UX inconsistency that surfaced naturally from real-device testing across screens. The fix forced a small architectural decision to reverse. The right framing turned out to be "patch in place, never refetch to broadcast" — same goal, much cheaper, and it generalizes to every future cache. Architecture isn\'t decided once. It\'s discovered as the surface area grows.',
+      screenshot: '09-feed-friends.png',
+      screenshotAlt: 'Spun Friends feed showing gold-filled hearts and like counts that stay in lockstep across surfaces',
+      caption: 'Notice the gold-filled hearts vs hollow hearts. Liking on any surface updates every cached copy of that log simultaneously — feed, album page, listening history — via a cross-cache scan-and-patch pattern. No refetch. No flicker.',
+      tags: ['bugs', 'patterns', 'decisions'],
+    },
+    {
+      id: 12, date: '2026-05-10', dateLabel: 'May 10',
+      phase: 'Strategy & Ops', phaseSlug: 'strategy',
+      headline: 'Cost analysis + Apple compliance + avatar / username locks',
+      summary: 'Not a build session. Three product decisions documented, full cost model, Apple submission gates surfaced.',
+      shipped: 'scalability-and-costs-spun-2026-05-10.md. Free-tier viable through ~1,500 MAU. Initials-only avatars at TestFlight. Username locked indefinitely after creation. Apple Phase 5 gates enumerated.',
+      broke: 'Avatar decision was nearly made on $1–3/month bandwidth savings; reframed to product validation (ship initials, listen for explicit feedback). Cost is a tiebreaker, not the primary input.',
+      learned: 'Bootstrap economics are architectural decisions. Narrow selects, page-size 20, DB-level aggregates, Spotify CDN for artwork — all compounding into "this thing can run on free tier through a thousand users."',
+      linkedin: 'Choosing to NOT build something is also a product decision worth recording. Initials-only avatars and locked usernames aren\'t shortcuts — they\'re explicit hypotheses about what users actually need. Bootstrapping a social product on $0/month of recurring infrastructure isn\'t austerity — it\'s the architecture working as designed.',
+      tags: ['decisions'],
+    },
+    {
+      id: 13, date: '2026-05-10', dateLabel: 'May 10',
+      phase: 'Strategy & Ops', phaseSlug: 'strategy',
+      headline: 'GitHub setup — two-repo strategy (app code only public-ready)',
+      summary: 'App code pushed to Abdelrahman183/spun-app (private). PM methodology layer (memory, outputs, process-log) deliberately kept local for now.',
+      shipped: 'spun-app private repo. README, .env.example, .gitignore audit (no hardcoded secrets). 96 files, ~10K LoC under one commit. memory/reference-github.md added.',
+      broke: 'supabase/.temp/ was getting staged — added to .gitignore.',
+      learned: 'Different audiences, different repos, different visibility decisions. App repo = working codebase. Methodology layer = "show me how you think." Bundling them obscures both.',
+      linkedin: 'The most valuable file I shipped this session is the one I didn\'t push — the methodology layer (memory, process log, PRDs, cost analysis, decision trail) is staying local-only for now, deliberately separate from the app code. The two-repo split isn\'t fragmentation — it\'s letting each piece be the cleanest version of itself.',
+      tags: ['decisions'],
+    },
+    {
+      id: 14, date: '2026-05-11', dateLabel: 'May 11',
+      phase: 'Phase 4 — Social', phaseSlug: 'phase4',
+      headline: 'Phase 4 Session E (12E) — Notifications + grouping debt surfaced',
+      summary: 'Notifications tab end-to-end. Mark-on-blur (not focus), brightness-based read/unread, gold badge. Grouping debt logged for Phase 5 after 4-likes seed test.',
+      shipped: 'mark_notifications_read RPC. useNotifications, useUnreadNotificationCount, useMarkNotificationsRead. NotificationItem branches on type. Pull-to-refresh + infinite scroll. Gold badge override on tab bar.',
+      broke: 'Focus-based marking flickered unread state in ~200ms — refetch landed before user could scan. Reversed to blur cleanup. Seeded 4 likes on the same review → 4 near-identical rows visible in Activity (visible debt at small scale, would be 30+ at 500-user launch scale).',
+      learned: 'Design for the tail, not the median. Most product decisions look fine at the median; the launch failures live in the tail. Notification grouping is Phase 5 critical — before users hit it, not after.',
+      linkedin: 'Design for the tail, not the median. Mark-on-blur works perfectly for 2–4 notifications a day. The real launch blocker doesn\'t show up until you honestly model the tail — a viral review at 500-user scale generates 30+ "X liked your review" rows that visually collapse into a wall of repetition.',
+      screenshot: '14-activity-notifications.png',
+      screenshotAlt: 'Activity tab with notifications list and stacked review_liked rows visible',
+      caption: 'Notice that "liked your review of Aqareb (Side B)" appears four times. At launch scale (500 users), a popular review can attract 30+ likes that stack as 30 near-identical rows. Notification grouping (RPC-side aggregation with a 7-day window) is on the Phase 5 list — paired with dedup. The bug is visible in the small here. The fix scales the principle.',
+      tags: ['decisions', 'patterns'],
+    },
+    {
+      id: 15, date: '2026-05-13', dateLabel: 'May 13',
+      phase: 'Phase 4 — Social', phaseSlug: 'phase4',
+      headline: 'Phase 4 Session E (12F) — Edit log + seed-canonical bug fix',
+      summary: 'Edit log shipped. Cross-cache mutation pattern generalized to heterogeneous shapes (loose-OR guard, key-intersection patch). Persistent fix for a pre-existing seed-canonical bug that had been invisibly fragmenting album aggregates since Phase 2.',
+      shipped: 'useUpdateLog (cache-scan, looser-OR shape guard). EditLogForm (formSheet mirror of LogForm). edit-log/[id] route with ownership guard + two-hook loader. SEED_ALBUMS gained spotifyId; useSeedLog uses find-or-create via UNIQUE constraint. 18 orphan rows backfilled to canonical.',
+      broke: 'OK Computer\'s favourite tracks UI was missing on edit because useSeedLog had been inserting fresh spotify_id-less album rows since Phase 2 onboarding shipped — orphan rows fragmented album aggregates and silently disabled the favourite tracks UI for all seed logs.',
+      learned: 'I shipped a feature that exposed a pre-existing bug. The bug was always there. Verification just rendered it visible. Don\'t fix the symptom; fix the invariant. Invariant: never insert albums from static data when spotify_id is known.',
+      linkedin: 'The hardest bug to find is the one that\'s lived in the codebase forever and never produced a visible failure until exactly the right user action triggered it. The seed-canonical bug had been creating duplicate orphan rows since Phase 2 — invisibly fragmenting album aggregates and silently disabling the favourite tracks UI. The fix isn\'t the persistent code change — it\'s recognizing that "I shipped a feature that exposed a pre-existing bug" is itself a signal.',
+      screenshot: '13-edit-log-save-changes.png',
+      screenshotAlt: 'Edit log form scrolled to show the Save Changes button',
+      caption: 'Same form as the create flow, but the button reads "Save Changes" instead of "Log Album." The edit flow uses local state seeded from the existing log, mutates in-place across every cached surface, and trigger-owned updated_at bumps automatically — never set client-side.',
+      extraShot: '03-rate-3-albums.png',
+      extraShotAlt: 'Onboarding screen — rate 3 seed albums to start your diary',
+      extraCaption: 'Three of these albums (OK Computer, To Pimp a Butterfly, Blonde) were attached to spotify_id-less orphan rows before this session\'s seed-canonical fix. The fix repointed every log to its canonical Spotify-enriched row — which is why the artwork now resolves at all.',
+      tags: ['bugs', 'patterns', 'decisions'],
+    },
+  ];
+
+  // ============ DECISIONS (from user-profile.md `decided_and_why`, 27 entries) ============
+  const DECISIONS = [
+    { title: 'React Native + Expo over SwiftUI', why: 'Single codebase covers iOS + Android, no native experience required, Expo EAS for cloud builds.', date: '2026-04-22' },
+    { title: 'Supabase for database + auth', why: 'Generous free tier, built-in auth, SQL-based (easier to reason about).', date: '2026-04-22' },
+    { title: 'iOS only for MVP', why: 'Evidence skewed iOS; Android adds complexity. Re-evaluate after launch.', date: '2026-04-23' },
+    { title: 'Multi-platform catalog search', why: 'Spotify-only exclusion is a documented adoption blocker; Apple Music as fallback improves coverage. Display-only — no account connection, no listening history import.', date: '2026-04-23' },
+    { title: 'No data import at launch', why: 'Letterboxd launched without IMDb import and users rebuilt taste identity from scratch — the product should be compelling on its own.', date: '2026-04-23' },
+    { title: 'Fully free at launch — no Pro tier', why: 'Monetization before retention adds friction before earning the right to ask for money. Revisit post-beta.', date: '2026-04-24' },
+    { title: 'Social feed IS in MVP — not deferred', why: 'Letterboxd launched with social feed from day one (April 2012 beta). The lesson is invite-only seeding, not removing social features.', date: '2026-04-24' },
+    { title: 'Invite-only TestFlight beta first', why: 'Seed ~50–200 right users to create content density before public launch. Letterboxd had 17K testers and 80K reviews before public beta.', date: '2026-04-24' },
+    { title: 'Market frame: "music diary app" — NOT "music social network"', why: 'Diary frames individual ownership first (your history, your taste) with social as a layer on top. Directly counters Musicboard trust anxiety — a diary is yours, a social network can collapse.', date: '2026-04-24' },
+    { title: 'Onboarding gate — must log 3 albums before feed unlocks', why: 'Prevents the empty-profile / empty-feed death spiral on Day 1. Ensures every user has a minimum taste identity before the social layer is surfaced.', date: '2026-04-24' },
+    { title: 'Music-native differentiators on top of Letterboxd shell', why: 'Re-listen flag (rating evolution over time) + New Release Friday feed. Differentiates from a clone; grounded in actual listener behavior; low complexity.', date: '2026-04-24' },
+    { title: 'TestFlight minimum of 20 committed users before invites', why: 'Content density minimum — 20 users × 5 logs each = 100 feed items. Prevents ghost-town first impression for early invitees.', date: '2026-04-24' },
+    { title: 'SessionContext pattern for auth', why: 'Single onAuthStateChange listener. No direct GoTrue calls from screens. refreshProfile() as the only public mutation. Discovered after 3 debugging sessions of silent infinite hangs.', date: '2026-04-29' },
+    { title: 'Favourite tracks feature in scope (1–3 per album)', why: '"What\'s your favourite track?" is the first question in any music conversation — rating alone is a shallow signal. Music is modular in a way film isn\'t.', date: '2026-05-03' },
+    { title: 'Release types scoped to album, ep, compilation', why: 'Singles excluded (no tracks to pick from). EP detection heuristic: Spotify "single" type + total_tracks > 3 = EP.', date: '2026-05-03' },
+    { title: 'Tracklist fetching split — catalog-search vs fetch-tracklist', why: 'Search is frequent and cheap; tracklist is expensive and only needed on album tap. Don\'t bundle them. Tracklist fetched during LogForm sheet animation so it\'s ready when the user interacts.', date: '2026-05-03' },
+    { title: 'Scalability-first rule', why: 'Never fetch full datasets client-side to aggregate. Use DB-level aggregates (RPC). Default to server-side pagination. The bar: would this query be acceptable with 10,000 rows?', date: '2026-05-03' },
+    { title: 'Multiple logs per album allowed and intentional', why: 'Each listen is a separate diary entry, no overwriting. Re-listen count = DB-level COUNT(*); is_relisten toggle is user intent metadata, not a counter.', date: '2026-05-04' },
+    { title: 'Edit flow vs re-log — separate paths', why: 'Tap diary entry → pre-populated form → UPDATE. Re-log creates a new INSERT. Album detail page shows "Listened N times," most recent rating, full history.', date: '2026-05-04' },
+    { title: 'Root Stack kept for user/album detail screens', why: 'Tab bar disappears by design. BackButton component provides return navigation. No nested Stack restructure needed.', date: '2026-05-08' },
+    { title: 'DB schema is source of truth for enum values', why: 'notification type values (\'new_follower\', \'review_liked\', \'co_log\') defined by CHECK constraint, not architecture doc SQL strings.', date: '2026-05-08' },
+    { title: 'Profile identity tier order — Follow UI is identity, not stats', why: 'ProfileHeader → FollowStatsRow → FollowButton → StatsBar → grid. Follow UI is identity context, not activity stats.', date: '2026-05-08' },
+    { title: 'Cross-cache mutations use scan-and-patch, not enumerated keys', why: 'useLikeLog scans queryCache, shape-guards via isLikeable, snapshots/patches/settles each cache containing the row. New surfaces auto-benefit. Decision 6 partially superseded.', date: '2026-05-09' },
+    { title: 'Viewer-aware RPCs must include viewer-state columns from day one', why: 'liked_by_viewer, is_following — EXISTS subquery on natural PK index. Without this, UI can only render correct state after a user action, not on reload.', date: '2026-05-09' },
+    { title: 'Counter columns are owned by a single trigger', why: 'tr_likes_count_sync owns logs.likes_count. Mutation RPCs never manually update — they INSERT/DELETE the source rows and re-SELECT post-trigger to return.', date: '2026-05-09' },
+    { title: 'Avatars at TestFlight are initials-only', why: 'Zero network cost. Uploaded avatars deferred until beta feedback signals demand. Rule: if 3+ TestFlight invitees ask unprompted, build uploads before public launch.', date: '2026-05-10' },
+    { title: 'Stay on Supabase free tier through TestFlight + early launch', why: 'Narrow selects + page-size 20 + DB-level aggregates + Spotify CDN for artwork → free-tier viable to ~1,500 MAU. Upgrade trigger: bandwidth > 4 GB/month sustained for two months OR > 1,000 MAU.', date: '2026-05-10' },
+    { title: 'Username changes locked indefinitely', why: 'Free username changes break @-mentions, link permanence, and create squatting/impersonation risk. Only display_name is user-editable.', date: '2026-05-10' },
+    { title: 'Two-repo split — app code on GitHub, PM layer kept local', why: 'Standard separation between application code and personal/PM artifacts. Keeps app repo clean for future portfolio publication. Avoids scrubbing personal context if visibility flips.', date: '2026-05-10' },
+    { title: 'Public launch scale anchor is 500 users in month 1', why: 'Product decisions — notification grouping, query pagination, cache-scan cost — stress-tested against this number. Median behavior is fine at 500; failure modes live in the tail.', date: '2026-05-11' },
+    { title: 'Notification UX: mark-on-blur + brightness-based read/unread', why: 'Correct for informational, low-volume types. Revisit when Phase 5 ships comments or @-mentions, which shift semantics from informational → actionable.', date: '2026-05-11' },
+    { title: 'Notification grouping for review_liked deferred to Phase 5', why: 'RPC-side aggregation with 7-day window. Critical before public launch — at 500-user scale, a popular review attracts 30+ likes which stack as 30 near-identical rows.', date: '2026-05-11' },
+    { title: 'useUpdateLog generalizes cross-cache pattern with loose-OR guard', why: 'No single cache surface carries all four editable fields. Loose-OR guard (id + at-least-one editable field) + key-intersection patch (write only keys already on the source item).', date: '2026-05-13' },
+    { title: 'Edit-log route uses ownership guard + two-hook loader', why: 'Redirect non-owners to /album/<id> (defense-in-depth alongside RLS). useLog(id) + useAlbumMeta with 5-min staleTime so album header renders instantly when navigated from album page.', date: '2026-05-13' },
+    { title: 'Never insert albums from static data when spotify_id is known', why: 'Always find-or-create via the albums_spotify_id_key UNIQUE constraint. Architectural invariant going forward; violations create orphan rows that fragment aggregates and break the favourite tracks UI.', date: '2026-05-13' },
+    { title: 'updated_at on logs is trigger-owned, not client-set', why: 'tr_logs_updated_at (moddatetime BEFORE UPDATE) owns it. Client mutations MUST NOT set updated_at. Same rule as logs.likes_count. When a trigger owns a column, the client never writes it.', date: '2026-05-13' },
+  ];
+
+  // ============ FEATURES (10 cards per spec) ============
+  const FEATURES = [
+    { name: 'Authentication', desc: 'Continue with Apple or email, deep-linked back to onboarding.', shot: '01-welcome.png', built: 'Phase 2', anchor: 8 },
+    { name: 'Onboarding', desc: 'Username, rate 3 seed albums, follow suggestions, "your diary has started" reward.', shot: '02-username-onboarding.png', built: 'Phase 2', anchor: 8 },
+    { name: 'Logging', desc: 'Search albums, rate, write a review, mark re-listen, pick 1–3 favourite tracks.', shot: '05-logform-with-tracks.png', built: 'Phase 3 (A, B, D)', anchor: 10 },
+    { name: 'Diary', desc: 'Personal album grid with rating overlays and aggregate stats (count + avg).', shot: '08-profile-diary-grid.png', built: 'Phase 3 Session C', anchor: 10 },
+    { name: 'Feed', desc: 'Friends / Everyone toggle, infinite scroll, pull-to-refresh.', shot: '09-feed-friends.png', built: 'Phase 4 Session A', anchor: 11 },
+    { name: 'User profiles', desc: 'Public profiles with Follow / Unfollow and follower counts.', shot: '11-public-profile-follow.png', built: 'Phase 4 Session B', anchor: 11 },
+    { name: 'Album pages', desc: 'Hero artwork, aggregate rating, friend & community reviews, listening history.', shot: '10-album-page.png', built: 'Phase 4 Session C', anchor: 11 },
+    { name: 'Likes', desc: 'Cross-surface heart-flip via cache-scan pattern — no refetch, no flicker.', shot: '09-feed-friends.png', built: 'Phase 4 Session D', anchor: 11 },
+    { name: 'Notifications', desc: 'Activity tab, gold badge, mark-on-blur, brightness-based unread state.', shot: '14-activity-notifications.png', built: 'Phase 4 Session E', anchor: 14 },
+    { name: 'Edit log', desc: 'Open from diary cell, change rating / review / tracks, Save Changes.', shot: '12-edit-log-form.png', built: 'Phase 4 Session E', anchor: 15 },
+  ];
+
+  // ============ ARCHITECTURE TOOLTIP CONTENT ============
+  const ARCH_TIPS = {
+    spotify: { title: 'Spotify API', body: 'Catalog source for album metadata, artwork, and tracklist. Free tier covers MVP. Display-only — no user account connection.' },
+    'catalog-search': { title: 'catalog-search (Edge Function)', body: 'Search-only call. 1 Spotify request per search; results deduped client-side (title + artist) before display.' },
+    'fetch-tracklist': { title: 'fetch-tracklist (Edge Function)', body: 'Called on album tap. DB cache first, Spotify fallback. Stores tracklist back to albums.tracklist for future tap-throughs.' },
+    postgres: { title: 'Supabase Postgres', body: 'Single DB. RLS on every table. SECURITY DEFINER triggers own counters and notifications. UNIQUE on albums.spotify_id prevents orphan rows. RPCs hide cross-RLS work.' },
+    tanstack: { title: 'TanStack Query', body: 'Server state. Cross-cache scan-and-patch pattern (useLikeLog, useUpdateLog) keeps multiple cached surfaces in lockstep without refetch.' },
+    zustand: { title: 'Zustand', body: 'Client state. UI store for sheets/toasts; log draft store for in-flight form data.' },
+    reanimated: { title: 'Reanimated', body: 'UI-thread animations. No JS bridge for gestures. Gesture.Race(tap, pan) is the locked composition for star ratings.' },
+    ios: { title: 'Expo / React Native — iOS', body: 'Managed Expo workflow. EAS builds for TestFlight. iPhone-first; tested on simulator + physical device in tunnel mode.' },
+  };
+
+  // ============ STATE ============
+  const state = {
+    view: 'timeline',
+    filter: 'all',
+    search: '',
+    expanded: new Set(),
+  };
+
+  // ============ HELPERS ============
+  function $(id) { return document.getElementById(id); }
+  function matchesSearch(s, q) {
+    if (!q) return true;
+    return s.toLowerCase().includes(q);
+  }
+  function buildSearchText(s) {
+    return [s.phase, s.headline, s.summary, s.shipped, s.broke, s.learned, s.linkedin, s.dateLabel].join(' ').toLowerCase();
+  }
+  function passesFilter(s, filter) {
+    if (filter === 'all' || filter === 'linkedin') return true;
+    return s.tags && s.tags.includes(filter);
+  }
+
+  // ============ RENDER: TIMELINE ============
+  function renderTimeline() {
+    const list = $('timeline-list');
+    list.innerHTML = '';
+    SESSIONS.forEach((s) => {
+      list.appendChild(buildMilestoneCard(s));
+    });
+  }
+  function buildMilestoneCard(s) {
+    const li = document.createElement('li');
+    li.className = 'milestone';
+    li.dataset.id = String(s.id);
+    li.dataset.phase = s.phaseSlug;
+    li.dataset.tags = (s.tags || []).join(',');
+    li.dataset.search = buildSearchText(s);
+    if (state.expanded.has(s.id)) li.dataset.expanded = 'true';
+
+    const head = document.createElement('button');
+    head.className = 'milestone-head';
+    head.setAttribute('aria-expanded', state.expanded.has(s.id) ? 'true' : 'false');
+    head.innerHTML = `
+      <div class="milestone-num calistoga">${s.id.toString().padStart(2, '0')}</div>
+      <div class="milestone-head-text">
+        <div class="milestone-meta">
+          <span class="pill">${s.phase}</span>
+          <span class="milestone-date">${s.dateLabel}</span>
+        </div>
+        <p class="milestone-headline">${s.headline}</p>
+        <p class="milestone-summary">${s.summary}</p>
+      </div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    `;
+    head.addEventListener('click', () => toggleMilestone(s.id));
+
+    const body = document.createElement('div');
+    body.className = 'milestone-body';
+    body.innerHTML = `
+      <div class="milestone-content ${s.screenshot ? 'has-shot' : ''}">
+        <div class="milestone-detail">
+          <div class="detail-block"><h4>What shipped</h4><p>${s.shipped}</p></div>
+          <div class="detail-block"><h4>What broke</h4><p>${s.broke}</p></div>
+          <div class="detail-block"><h4>What was learned</h4><p>${s.learned}</p></div>
+          <div class="linkedin-quote">${s.linkedin}</div>
+        </div>
+        ${s.screenshot ? `
+          <div class="milestone-screenshot">
+            <img src="assets/${s.screenshot}" alt="${s.screenshotAlt || s.headline}" loading="lazy" />
+            ${s.caption ? `<p class="screenshot-caption">${s.caption}</p>` : ''}
+            ${s.extraShot ? `
+              <img src="assets/${s.extraShot}" alt="${s.extraShotAlt || ''}" loading="lazy" style="margin-top: 24px;" />
+              ${s.extraCaption ? `<p class="screenshot-caption">${s.extraCaption}</p>` : ''}
+            ` : ''}
+          </div>
+        ` : ''}
+      </div>
+    `;
+    li.appendChild(head);
+    li.appendChild(body);
+    return li;
+  }
+  function toggleMilestone(id) {
+    if (state.expanded.has(id)) state.expanded.delete(id);
+    else state.expanded.add(id);
+    syncExpandedDom();
+  }
+  function syncExpandedDom() {
+    document.querySelectorAll('.milestone').forEach((el) => {
+      const id = Number(el.dataset.id);
+      const expanded = state.expanded.has(id);
+      el.dataset.expanded = expanded ? 'true' : 'false';
+      const head = el.querySelector('.milestone-head');
+      if (head) head.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    });
+  }
+
+  // ============ RENDER: BY PHASE ============
+  function renderPhases() {
+    const c = $('phases-container');
+    c.innerHTML = '';
+    const groups = {};
+    SESSIONS.forEach((s) => {
+      if (!groups[s.phase]) groups[s.phase] = { slug: s.phaseSlug, sessions: [] };
+      groups[s.phase].sessions.push(s);
+    });
+    Object.entries(groups).forEach(([phaseName, data]) => {
+      const group = document.createElement('div');
+      group.className = 'phase-group';
+      group.dataset.phaseGroup = data.slug;
+      group.innerHTML = `
+        <div class="phase-group-header">
+          <h3>${phaseName}</h3>
+          <span class="count">${data.sessions.length} ${data.sessions.length === 1 ? 'session' : 'sessions'}</span>
+        </div>
+        <ol class="timeline-list"></ol>
+      `;
+      const ol = group.querySelector('.timeline-list');
+      data.sessions.forEach((s) => ol.appendChild(buildMilestoneCard(s)));
+      c.appendChild(group);
+    });
+    // Phase 5 in-progress
+    const p5 = document.createElement('div');
+    p5.className = 'phase-group';
+    p5.dataset.phaseGroup = 'phase5';
+    p5.innerHTML = `
+      <div class="phase-group-header in-progress">
+        <h3>Phase 5 — Completeness</h3>
+        <span class="count">in progress</span>
+      </div>
+      <div class="in-progress-msg">
+        Notification dedup + grouping, lists, search tab, push delivery, Apple compliance gates (account delete, content reporting, blocking UI, privacy policy, App Store privacy labels). Updates coming.
+      </div>
+    `;
+    c.appendChild(p5);
+  }
+
+  // ============ RENDER: DECISIONS ============
+  function renderDecisions() {
+    const grid = $('decisions-grid');
+    grid.innerHTML = '';
+    DECISIONS.forEach((d, i) => {
+      const el = document.createElement('div');
+      el.className = 'decision';
+      el.innerHTML = `
+        <div class="decision-head">
+          <span class="decision-num">${(i + 1).toString().padStart(2, '0')}</span>
+          <h4 class="decision-title">${d.title}</h4>
+          <span class="decision-date">${d.date}</span>
+        </div>
+        <p class="decision-why"><strong style="color:var(--fg);">Why:</strong> ${d.why}</p>
+      `;
+      grid.appendChild(el);
+    });
+  }
+
+  // ============ RENDER: FEATURES ============
+  function renderFeatures() {
+    const grid = $('features-grid');
+    grid.innerHTML = '';
+    FEATURES.forEach((f) => {
+      const el = document.createElement('div');
+      el.className = 'feature';
+      el.innerHTML = `
+        <div class="feature-shot"><img src="assets/${f.shot}" alt="${f.name} screen" loading="lazy" /></div>
+        <div class="feature-body">
+          <h4 class="feature-name">${f.name}</h4>
+          <p class="feature-desc">${f.desc}</p>
+          <p class="feature-meta">Built in <a href="#session-${f.anchor}" data-feature-jump="${f.anchor}">${f.built}</a></p>
+        </div>
+      `;
+      grid.appendChild(el);
+    });
+    grid.querySelectorAll('[data-feature-jump]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = Number(link.dataset.featureJump);
+        setView('timeline');
+        state.expanded.add(id);
+        renderTimeline();
+        applyFilters();
+        setTimeout(() => {
+          const el = document.querySelector(`.milestone[data-id="${id}"]`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      });
+    });
+  }
+
+  // ============ VIEW SWITCHING ============
+  function setView(view) {
+    state.view = view;
+    document.querySelectorAll('.view-toggle button').forEach((b) => {
+      b.classList.toggle('active', b.dataset.view === view);
+    });
+    document.querySelectorAll('.view').forEach((v) => {
+      v.classList.toggle('active', v.id === 'view-' + view);
+    });
+    applyFilters();
+  }
+
+  // ============ FILTER + SEARCH ============
+  function applyFilters() {
+    const q = state.search.trim().toLowerCase();
+    const f = state.filter;
+    let visibleCount = 0;
+    document.querySelectorAll('.milestone').forEach((el) => {
+      const id = Number(el.dataset.id);
+      const session = SESSIONS.find((s) => s.id === id);
+      if (!session) return;
+      const passFilter = passesFilter(session, f);
+      const passSearch = matchesSearch(el.dataset.search, q);
+      const visible = passFilter && passSearch;
+      el.dataset.hidden = visible ? 'false' : 'true';
+      if (visible) visibleCount++;
+    });
+    const emptyEl = $('timeline-empty');
+    if (emptyEl) emptyEl.hidden = !(state.view === 'timeline' && visibleCount === 0);
+    // Hide phase-groups that have no visible milestones
+    if (state.view === 'phases') {
+      document.querySelectorAll('.phase-group').forEach((g) => {
+        const items = g.querySelectorAll('.milestone');
+        if (items.length === 0) { g.style.display = ''; return; }
+        const anyVisible = Array.from(items).some((m) => m.dataset.hidden !== 'true');
+        g.style.display = anyVisible ? '' : 'none';
+      });
+    }
+  }
+
+  // ============ STICKY PHASE INDICATOR (IntersectionObserver) ============
+  function initPhaseIndicator() {
+    const PHASE_LABELS = {
+      discovery: 'Discovery',
+      spec: 'Spec & Setup',
+      phase1: 'Phase 1 — Foundation',
+      phase3: 'Phase 3 — Logging',
+      phase4: 'Phase 4 — Social',
+      strategy: 'Strategy & Ops',
+    };
+    const indicator = $('phase-current');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const slug = entry.target.dataset.phase;
+          if (slug && PHASE_LABELS[slug]) indicator.textContent = PHASE_LABELS[slug];
+        }
+      });
+    }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+    // Re-attach observer whenever timeline rerenders
+    document.querySelectorAll('.milestone[data-phase]').forEach((el) => obs.observe(el));
+  }
+
+  // ============ ARCHITECTURE TOOLTIP ============
+  function initArchTooltip() {
+    const tip = $('arch-tooltip');
+    const wrap = $('arch-wrap');
+    document.querySelectorAll('.arch-node').forEach((node) => {
+      const showTip = (e) => {
+        const key = node.dataset.tip;
+        const info = ARCH_TIPS[key];
+        if (!info) return;
+        tip.innerHTML = `<div class="tip-title">${info.title}</div>${info.body}`;
+        tip.classList.add('visible');
+        positionTooltip(e, node);
+      };
+      const hideTip = () => tip.classList.remove('visible');
+      node.addEventListener('mouseenter', showTip);
+      node.addEventListener('mousemove', (e) => positionTooltip(e, node));
+      node.addEventListener('mouseleave', hideTip);
+      node.addEventListener('focus', showTip);
+      node.addEventListener('blur', hideTip);
+    });
+    function positionTooltip(e, node) {
+      const wrapRect = wrap.getBoundingClientRect();
+      const rect = node.getBoundingClientRect();
+      // Position relative to wrap, slightly below the node, clamped to the wrap
+      let x = (rect.left + rect.width / 2) - wrapRect.left;
+      let y = (rect.bottom - wrapRect.top) + 10;
+      // Render once to measure
+      tip.style.left = '0px';
+      tip.style.top = y + 'px';
+      const tipRect = tip.getBoundingClientRect();
+      const maxX = wrapRect.width - tipRect.width - 12;
+      x = Math.max(12, Math.min(maxX, x - tipRect.width / 2));
+      tip.style.left = x + 'px';
+    }
+  }
+
+  // ============ DEBOUNCE ============
+  function debounce(fn, ms) {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
+    };
+  }
+
+  // ============ WIRE UP ============
+  function init() {
+    // Compute days building from 2026-04-22
+    const start = new Date('2026-04-22T00:00:00');
+    const today = new Date();
+    const days = Math.max(1, Math.floor((today - start) / (1000 * 60 * 60 * 24)));
+    $('stat-days').textContent = String(days);
+    $('stat-decisions').textContent = String(DECISIONS.length);
+    $('hero-subtitle').textContent = `${days} days. 5 phases. 1 PM. No engineers.`;
+
+    renderTimeline();
+    renderPhases();
+    renderDecisions();
+    renderFeatures();
+
+    document.querySelectorAll('.view-toggle button').forEach((b) => {
+      b.addEventListener('click', () => setView(b.dataset.view));
+    });
+
+    document.querySelectorAll('.chip').forEach((c) => {
+      c.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach((cc) => cc.classList.remove('active'));
+        c.classList.add('active');
+        state.filter = c.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    $('search-input').addEventListener('input', debounce((e) => {
+      state.search = e.target.value;
+      applyFilters();
+    }, 150));
+
+    $('expand-all').addEventListener('click', () => {
+      SESSIONS.forEach((s) => state.expanded.add(s.id));
+      syncExpandedDom();
+    });
+    $('collapse-all').addEventListener('click', () => {
+      state.expanded.clear();
+      syncExpandedDom();
+    });
+
+    initArchTooltip();
+    initPhaseIndicator();
+    applyFilters();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
+
+</body>
+</html>
